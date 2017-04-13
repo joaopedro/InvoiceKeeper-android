@@ -5,4 +5,8 @@
     <string name="title_activity_splashcreen">SplashcreenActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="addInvoice.title">Title</string>
+    <string name="addInvoice.date">Date</string>
+    <string name="dateInput">Date</string>
+    <string name="datePickerTitle">Choose Invoice Date</string>
 </resources>
