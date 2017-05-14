@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="invoice_types">TODO</string-array>
+    <string-array name="invoice_types">
+        <item>Clothes</item>
+        <item>Shoes</item>
+        <item>Electronics</item>
+        <item>Furniture</item>
+        <item>Transportation</item>
+        <item>Sports</item>
+    </string-array>
+    <string-array name="warranty_periods">
+        <item>1 year</item>
+        <item>2 year</item>
+        <item>3 year</item>
+        <item>4 year</item>
+        <item>5 year</item>
+    </string-array>
 </resources>

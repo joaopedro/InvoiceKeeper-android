@@ -11,11 +11,13 @@ public final class InvoiceContract {
     public static class Invoice implements BaseColumns {
         public static final String TABLE_NAME = "invoice";
 
-        private static final String COLUMN_NAME_TITLE = "title";
-        private static final String COLUMN_NAME_TYPE = "type";
-        private static final String COLUMN_NAME_WARRANTY_PERIOD = "warranty_period";
-        private static final String COLUMN_NAME_DATE = "date";
-        private static final String COLUMN_NAME_IMAGE_FILE = "image_file";
+        public static final String COLUMN_NAME_TITLE = "title";
+        public static final String COLUMN_NAME_TYPE = "type";
+        public static final String COLUMN_NAME_WARRANTY_PERIOD = "warranty_period";
+        public static final String COLUMN_NAME_DATE = "date";
+        public static final String COLUMN_NAME_IMAGE_FILE = "image_file";
 
     }
+
+
 }

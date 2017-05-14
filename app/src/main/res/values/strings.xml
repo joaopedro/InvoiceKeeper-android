@@ -9,4 +9,11 @@
     <string name="addInvoice.date">Date</string>
     <string name="dateInput">Date</string>
     <string name="datePickerTitle">Choose Invoice Date</string>
+    <string name="addInvoice.title_hint">Purchase Title</string>
+    <string name="warranty_period">Warranty Period</string>
+    <string name="invoice.type">Invoice Type</string>
+    <string name="invoice.warranty_period">Warranty Period</string>
+    <string name="pickActionTitle">Select Image ot Take Picture</string>
+
+    <string name="title_activity_show_invoice_image">ShowInvoiceImage</string>
 </resources>

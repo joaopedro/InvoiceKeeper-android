@@ -6,4 +6,13 @@
     android:layout_height="match_parent"
     tools:context="com.smartech.invoicekeeper.ShowInvoiceImage">
 
+    <ImageView
+        android:id="@+id/bigInvoiceImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:srcCompat="@drawable/camera"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
 </android.support.constraint.ConstraintLayout>
