@@ -1,10 +1,11 @@
 package com.smartech.invoicekeeper;
 
+import android.app.LoaderManager;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -18,7 +19,8 @@ import com.smartech.invoicekeeper.db.InvoiceDBHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private ListView listView;
     private InvoiceDBHelper invoiceDBHelper;
@@ -50,10 +52,9 @@ public class MainActivity extends AppCompatActivity {
 
         Cursor invoicesCursor = invoiceDBHelper.getAll();
 
-        //TODO: startManagingCursor is depracated, use the correct method instead an finish using the database source for the list view.
-        //        getLoaderManager().initLoader(0, null, this);
+            //TODO: startManagingCursor is depracated, use the correct method instead an finish using the database source for the list view.
+        getLoaderManager().initLoader(0, null, this);
 
-        startManagingCursor(invoicesCursor);
         // Instanciating an array list (you don't need to do this,
         // you already have yours).
         List<String> your_array_list = new ArrayList<String>();
@@ -109,5 +110,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         invoiceDBHelper.close();
         super.onDestroy();
+    }
+
+    @Override
+    public android.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(android.content.Loader<Cursor> loader, Cursor data) {
+
+    }
+
+    @Override
+    public void onLoaderReset(android.content.Loader<Cursor> loader) {
+
     }
 }
