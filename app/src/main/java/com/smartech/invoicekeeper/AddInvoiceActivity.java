@@ -50,7 +50,7 @@ public class AddInvoiceActivity extends AppCompatActivity implements DatePickerD
     private String imageFile;
     private InvoiceDBHelper invoiceDBHelper;
 
-    private long dbID=5;
+    private long dbID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,9 +92,8 @@ public class AddInvoiceActivity extends AppCompatActivity implements DatePickerD
                 }else{
                  //   invoiceDBHelper.updateInvoice(dbID, s.toString(), invoiceType.getSelectedItem().toString(),Integer.valueOf(warrantyPeriod.getSelectedItem().toString())
                  //           ,imageFile, null);
-                    invoiceDBHelper.updateInvoice(dbID, null, null ,null ,null, null);
+                    invoiceDBHelper.updateInvoice(dbID, s.toString(), null ,null ,null, null);
                 }
-                Toast.makeText(getApplicationContext(), String.valueOf(dbID), Toast.LENGTH_LONG).show();
             }
         });
 

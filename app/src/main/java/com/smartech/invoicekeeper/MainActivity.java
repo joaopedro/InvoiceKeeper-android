@@ -11,19 +11,24 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
 
+import com.smartech.invoicekeeper.db.InvoiceContract;
 import com.smartech.invoicekeeper.db.InvoiceDBHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class MainActivity extends AppCompatActivity {
 
     private ListView listView;
     private InvoiceDBHelper invoiceDBHelper;
+    private SimpleCursorAdapter dataAdapter;
 
     public static final String DBID = "dbid";
     public static final int INITIALDB_ID = 0;
@@ -51,37 +56,36 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         listView = (ListView) findViewById(R.id.invoicesList);
 
         Cursor invoicesCursor = invoiceDBHelper.getAll();
+        dataAdapter = new SimpleCursorAdapter(
+                this, R.layout.invoice_list_element,
+                invoicesCursor,
+                new String[] {InvoiceContract.Invoice.COLUMN_NAME_TITLE},
+                new int[] {R.id.invoiceTitleListElement},
+                0);
+
 
             //TODO: startManagingCursor is depracated, use the correct method instead an finish using the database source for the list view.
-        getLoaderManager().initLoader(0, null, this);
+        //getLoaderManager().initLoader(0, null, this);
 
-        // Instanciating an array list (you don't need to do this,
-        // you already have yours).
-        List<String> your_array_list = new ArrayList<String>();
-        your_array_list.add("foo");
-        your_array_list.add("bar");
-        your_array_list.add("foo");
-        your_array_list.add("bar");
-        your_array_list.add("foo");
-        your_array_list.add("bar");
-        your_array_list.add("foo");
-        your_array_list.add("bar");
-        your_array_list.add("foo");
-        your_array_list.add("bar");
-        your_array_list.add("foo");
-        your_array_list.add("bar");
-        your_array_list.add("foo");
-        your_array_list.add("bar8888");
+        listView.setAdapter(dataAdapter);
 
-        // This is the array adapter, it takes the context of the activity as a
-        // first parameter, the type of list view as a second parameter and your
-        // array as a third parameter.
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
-                this,
-                android.R.layout.simple_list_item_1,
-                your_array_list );
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> listView, View view,
+                                    int position, long id) {
+                // Get the cursor, positioned to the corresponding row in the result set
+                Cursor cursor = (Cursor) listView.getItemAtPosition(position);
 
-        listView.setAdapter(arrayAdapter);
+                Intent intent = new Intent(view.getContext(), AddInvoiceActivity.class);
+                int dbid = cursor.getInt(cursor.getColumnIndexOrThrow(InvoiceContract.Invoice._ID));
+                intent.putExtra(DBID, dbid);
+                startActivity(intent);
+
+                Toast.makeText(getApplicationContext(),
+                        "Selected : "+dbid, Toast.LENGTH_SHORT).show();
+
+            }
+        });
     }
 
     @Override
@@ -110,20 +114,5 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onDestroy() {
         invoiceDBHelper.close();
         super.onDestroy();
-    }
-
-    @Override
-    public android.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return null;
-    }
-
-    @Override
-    public void onLoadFinished(android.content.Loader<Cursor> loader, Cursor data) {
-
-    }
-
-    @Override
-    public void onLoaderReset(android.content.Loader<Cursor> loader) {
-
     }
 }
