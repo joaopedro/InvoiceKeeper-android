@@ -1,8 +1,10 @@
 package com.smartech.invoicekeeper;
 
 import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.Loader;
@@ -24,8 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    public static final String CONTENT_INVOICE_LIST = "content://invoice_list";
     private ListView listView;
     private InvoiceDBHelper invoiceDBHelper;
     private SimpleCursorAdapter dataAdapter;
@@ -35,8 +38,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        dataAdapter.swapCursor(invoiceDBHelper.getAll());
-        dataAdapter.notifyDataSetChanged();
+        getContentResolver().notifyChange(
+                Uri.parse(CONTENT_INVOICE_LIST), null);
         super.onResume();
     }
 
@@ -52,8 +55,6 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                //        .setAction("Action", null).show();
                 Intent intent = new Intent(view.getContext(), AddInvoiceActivity.class);
                 intent.putExtra(DBID, INITIALDB_ID);
                 startActivity(intent);
@@ -62,17 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
         listView = (ListView) findViewById(R.id.invoicesList);
 
-        Cursor invoicesCursor = invoiceDBHelper.getAll();
-        dataAdapter = new SimpleCursorAdapter(
-                this, R.layout.invoice_list_element,
-                invoicesCursor,
-                new String[] {InvoiceContract.Invoice.COLUMN_NAME_TITLE},
-                new int[] {R.id.invoiceTitleListElement},
-                0);
-
-
-            //TODO: startManagingCursor is depracated, use the correct method instead an finish using the database source for the list view.
-        //getLoaderManager().initLoader(0, null, this);
+        getLoaderManager().initLoader(0, null, this);
 
         listView.setAdapter(dataAdapter);
 
@@ -121,5 +112,48 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         invoiceDBHelper.close();
         super.onDestroy();
+    }
+
+    @Override
+    public android.content.Loader onCreateLoader(int id, Bundle args) {
+        Uri uri = Uri.parse(CONTENT_INVOICE_LIST);
+        final String[] projection = new String[]{InvoiceContract.Invoice.COLUMN_NAME_TITLE};
+        return new CursorLoader(this, uri, projection, null, null, null) {
+            private final ForceLoadContentObserver mObserver = new ForceLoadContentObserver();
+
+            @Override
+            public Cursor loadInBackground() {
+                Cursor c = invoiceDBHelper.getAll();
+                if (c != null) {
+
+                    c.getCount();
+                    c.registerContentObserver(mObserver);
+                }
+
+                c.setNotificationUri(getContext().getContentResolver(), getUri());
+                return c;
+            }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(android.content.Loader<Cursor> loader, Cursor data) {
+        if(dataAdapter==null){
+            dataAdapter = new SimpleCursorAdapter(
+                    this, R.layout.invoice_list_element,
+                    data,
+                    new String[] {InvoiceContract.Invoice.COLUMN_NAME_TITLE},
+                    new int[] {R.id.invoiceTitleListElement},
+                    0);
+            listView.setAdapter(dataAdapter);
+        }else{
+            dataAdapter.swapCursor(data);
+            dataAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void onLoaderReset(android.content.Loader loader) {
+        Toast.makeText(this,"Reset Made!!",Toast.LENGTH_LONG).show();
     }
 }

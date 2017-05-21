@@ -17,16 +17,21 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.ImageView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.smartech.invoicekeeper.db.InvoiceContract;
+import com.smartech.invoicekeeper.db.InvoiceDAO;
 import com.smartech.invoicekeeper.db.InvoiceDBHelper;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.UUID;
 
 public class AddInvoiceActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener{
@@ -51,7 +56,7 @@ public class AddInvoiceActivity extends AppCompatActivity implements DatePickerD
     private InvoiceDBHelper invoiceDBHelper;
 
     private long dbID;
-
+    private InvoiceDAO invoiceDAO;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,15 +65,6 @@ public class AddInvoiceActivity extends AppCompatActivity implements DatePickerD
         Intent intent = getIntent();
         dbID = intent.getIntExtra(MainActivity.DBID, 0);
 
-        //Instantiate a calendar do fill the date textbox and the DatePickerDialog
-        calendar = Calendar.getInstance();
-        Year = calendar.get(Calendar.YEAR) ;
-        Month = calendar.get(Calendar.MONTH);
-        Day = calendar.get(Calendar.DAY_OF_MONTH);
-
-        //Handle the data text box and the datePickerDialog
-        datePickerDialog = new DatePickerDialog(AddInvoiceActivity.this, AddInvoiceActivity.this, Year, Month, Day);
-        datePickerDialog.setTitle(R.string.datePickerTitle);
 
         title = (TextView) findViewById(R.id.invoiceTitle);
 
@@ -88,11 +84,13 @@ public class AddInvoiceActivity extends AppCompatActivity implements DatePickerD
                 ContentValues values = new ContentValues();
                 values.put(InvoiceContract.Invoice.COLUMN_NAME_TITLE, s.toString());
                 if(dbID==0){
-                    dbID = invoiceDBHelper.insertInvoice(s.toString(),null,null,null,null);
+                    dbID = invoiceDBHelper.insertInvoice(s.toString(),invoiceType.getSelectedItem().toString()
+                            ,warrantyPeriod.getSelectedItem().toString(),imageFile, date.getText().toString());
                 }else{
                  //   invoiceDBHelper.updateInvoice(dbID, s.toString(), invoiceType.getSelectedItem().toString(),Integer.valueOf(warrantyPeriod.getSelectedItem().toString())
                  //           ,imageFile, null);
-                    invoiceDBHelper.updateInvoice(dbID, s.toString(), null ,null ,null, null);
+                    invoiceDBHelper.updateInvoice(dbID, s.toString(), invoiceType.getSelectedItem().toString()
+                            ,warrantyPeriod.getSelectedItem().toString(),imageFile, date.getText().toString());
                 }
             }
         });
@@ -101,7 +99,6 @@ public class AddInvoiceActivity extends AppCompatActivity implements DatePickerD
 
         date = (TextView) findViewById(R.id.dateText);
         date.setText(Day+"/"+Month+"/"+Year);
-
         date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -161,11 +158,45 @@ public class AddInvoiceActivity extends AppCompatActivity implements DatePickerD
             }
         });
 
-        if(dbID>MainActivity.INITIALDB_ID){
-            title.setText(invoiceDBHelper.getInvoiceById(dbID));
+        if(dbID>MainActivity.INITIALDB_ID) {
+            invoiceDAO = invoiceDBHelper.getInvoiceById(dbID);
+            title.setText(invoiceDAO.getTitle());
+            selectSpinnerItemByValue(invoiceType, invoiceDAO.getType());
+            date.setText(invoiceDAO.getDate());
+            selectSpinnerItemByValue(warrantyPeriod, invoiceDAO.getWarrantyPeriod());
         }
+
+        //Instantiate a calendar do fill the date textbox and the DatePickerDialog
+        calendar = Calendar.getInstance();
+        if(dbID>MainActivity.INITIALDB_ID){
+            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+            try {
+                calendar.setTime(format.parse(invoiceDAO.getDate()));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        Year = calendar.get(Calendar.YEAR) ;
+        Month = calendar.get(Calendar.MONTH);
+        Day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        //Handle the data text box and the datePickerDialog
+        datePickerDialog = new DatePickerDialog(AddInvoiceActivity.this, AddInvoiceActivity.this, Year, Month, Day);
+        datePickerDialog.setTitle(R.string.datePickerTitle);
+
     }
 
+    private void selectSpinnerItemByValue(Spinner spnr, String value) {
+        ArrayAdapter<String> adapter = (ArrayAdapter<String>) spnr.getAdapter();
+        if(value==null || value.isEmpty())
+            return;
+        for (int position = 0; position < adapter.getCount(); position++) {
+            if(value.equalsIgnoreCase(adapter.getItem(position))) {
+                spnr.setSelection(position);
+                return;
+            }
+        }
+    }
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
         date.setText(dayOfMonth+"/"+(month+1)+"/"+year);
