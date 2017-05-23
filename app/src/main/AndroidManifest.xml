@@ -19,13 +19,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AddInvoiceActivity">
+        <activity android:name=".AddInvoiceActivity"
+            android:parentActivityName=".MainActivity">
             <uses-feature
                 android:name="android.hardware.camera"
                 android:required="false" />
             <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
         </activity>
-        <activity android:name=".ShowInvoiceImage">
+        <activity android:name=".ShowInvoiceImage"
+            android:parentActivityName=".AddInvoiceActivity">
             <uses-permission android:name="android.permission.READ_INTERNAL_STORAGE" />
         </activity>
     </application>

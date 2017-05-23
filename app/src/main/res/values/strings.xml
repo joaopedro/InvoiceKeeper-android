@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Invoice Keeper</string>
     <string name="action_settings">Settings</string>
+    <string name="action_save">Save</string>
 
     <string name="title_activity_splashcreen">SplashcreenActivity</string>
     <string name="dummy_button">Dummy Button</string>

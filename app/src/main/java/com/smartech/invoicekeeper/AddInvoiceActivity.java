@@ -13,6 +13,8 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
@@ -60,7 +62,9 @@ public class AddInvoiceActivity extends AppCompatActivity implements DatePickerD
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_add_invoice);
+
         invoiceDBHelper = new InvoiceDBHelper(getApplicationContext());
         Intent intent = getIntent();
         dbID = intent.getIntExtra(MainActivity.DBID, 0);
@@ -248,6 +252,13 @@ public class AddInvoiceActivity extends AppCompatActivity implements DatePickerD
     protected void onDestroy() {
         invoiceDBHelper.close();
         super.onDestroy();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.add_invoice_menu, menu);
+        return true;
     }
 
 }
