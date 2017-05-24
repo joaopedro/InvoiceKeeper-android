@@ -75,13 +75,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 Cursor cursor = (Cursor) listView.getItemAtPosition(position);
 
                 Intent intent = new Intent(view.getContext(), AddInvoiceActivity.class);
-                int dbid = cursor.getInt(cursor.getColumnIndexOrThrow(InvoiceContract.Invoice._ID));
+                long dbid = cursor.getLong(cursor.getColumnIndexOrThrow(InvoiceContract.Invoice._ID));
                 intent.putExtra(DBID, dbid);
                 startActivity(intent);
-
-                Toast.makeText(getApplicationContext(),
-                        "Selected : "+dbid, Toast.LENGTH_SHORT).show();
-
             }
         });
     }

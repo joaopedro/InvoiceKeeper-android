@@ -3,9 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.smartech.invoicekeeper.AddInvoiceActivity">
     <item
-        android:id="@+id/action_save"
+        android:id="@+id/action_edit_image"
         android:orderInCategory="100"
-        android:title="@string/action_save"
-        android:icon="@android:drawable/ic_menu_save"
+        android:title="@string/action_edit"
+        android:icon="@android:drawable/ic_menu_edit"
         app:showAsAction="ifRoom" />
 </menu>

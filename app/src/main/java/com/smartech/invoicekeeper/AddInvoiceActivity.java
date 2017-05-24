@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +16,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
@@ -28,6 +30,7 @@ import com.smartech.invoicekeeper.db.InvoiceContract;
 import com.smartech.invoicekeeper.db.InvoiceDAO;
 import com.smartech.invoicekeeper.db.InvoiceDBHelper;
 
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
@@ -35,6 +38,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
+
+import static com.smartech.invoicekeeper.MainActivity.DBID;
 
 public class AddInvoiceActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener{
 
@@ -67,48 +72,11 @@ public class AddInvoiceActivity extends AppCompatActivity implements DatePickerD
 
         invoiceDBHelper = new InvoiceDBHelper(getApplicationContext());
         Intent intent = getIntent();
-        dbID = intent.getIntExtra(MainActivity.DBID, 0);
+        dbID = intent.getLongExtra(DBID, 0);
+        imageFile = intent.getStringExtra(ShowInvoiceImage.IMAGE_FILE_EXTRA);
 
 
         title = (TextView) findViewById(R.id.invoiceTitle);
-
-        title.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                ContentValues values = new ContentValues();
-                values.put(InvoiceContract.Invoice.COLUMN_NAME_TITLE, s.toString());
-                if(dbID==0){
-                    dbID = invoiceDBHelper.insertInvoice(s.toString(),invoiceType.getSelectedItem().toString()
-                            ,warrantyPeriod.getSelectedItem().toString(),imageFile, date.getText().toString());
-                }else{
-                 //   invoiceDBHelper.updateInvoice(dbID, s.toString(), invoiceType.getSelectedItem().toString(),Integer.valueOf(warrantyPeriod.getSelectedItem().toString())
-                 //           ,imageFile, null);
-                    invoiceDBHelper.updateInvoice(dbID, s.toString(), invoiceType.getSelectedItem().toString()
-                            ,warrantyPeriod.getSelectedItem().toString(),imageFile, date.getText().toString());
-                }
-            }
-        });
-
-
-
-        date = (TextView) findViewById(R.id.dateText);
-        date.setText(Day+"/"+Month+"/"+Year);
-        date.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                datePickerDialog.show();
-            }
-        });
 
         //handle the invoice type Spinner
         invoiceType = (Spinner) findViewById(R.id.invoiceType);
@@ -132,6 +100,8 @@ public class AddInvoiceActivity extends AppCompatActivity implements DatePickerD
         warrantyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
         warrantyPeriod.setAdapter(warrantyAdapter);
+
+        date = (TextView) findViewById(R.id.dateText);
 
         //Handle the invoice image capture
         this.invoiceImageView = (ImageView)this.findViewById(R.id.invoiceImageView);
@@ -157,6 +127,7 @@ public class AddInvoiceActivity extends AppCompatActivity implements DatePickerD
                 }else if (!TextUtils.isEmpty(imageFile)){
                     Intent intent = new Intent(AddInvoiceActivity.this, ShowInvoiceImage.class);
                     intent.putExtra(IMAGE_FILE_EXTRA, imageFile);
+                    intent.putExtra(DBID, dbID);
                     startActivity(intent);
                 }
             }
@@ -168,6 +139,22 @@ public class AddInvoiceActivity extends AppCompatActivity implements DatePickerD
             selectSpinnerItemByValue(invoiceType, invoiceDAO.getType());
             date.setText(invoiceDAO.getDate());
             selectSpinnerItemByValue(warrantyPeriod, invoiceDAO.getWarrantyPeriod());
+
+            if( imageFile==null && !TextUtils.isEmpty(invoiceDAO.getImageFile()))
+                imageFile = invoiceDAO.getImageFile();
+
+
+            if( imageFile != null){
+                imageTaken=true;
+                try {
+                    Bitmap bitmap = null;
+                    bitmap = BitmapFactory.decodeStream(openFileInput(imageFile));
+                    invoiceImageView.setImageBitmap(bitmap);
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException();
+                }
+            }
+
         }
 
         //Instantiate a calendar do fill the date textbox and the DatePickerDialog
@@ -188,6 +175,28 @@ public class AddInvoiceActivity extends AppCompatActivity implements DatePickerD
         datePickerDialog = new DatePickerDialog(AddInvoiceActivity.this, AddInvoiceActivity.this, Year, Month, Day);
         datePickerDialog.setTitle(R.string.datePickerTitle);
 
+        date.setText(Day+"/"+Month+"/"+Year);
+        date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                datePickerDialog.show();
+            }
+        });
+
+
+    }
+
+    private void saveInvoice() {
+        if(dbID==0){
+            dbID = invoiceDBHelper.insertInvoice(title.getText().toString(),invoiceType.getSelectedItem().toString()
+                    ,warrantyPeriod.getSelectedItem().toString(),imageFile, date.getText().toString());
+        }else{
+         //   invoiceDBHelper.updateInvoice(dbID, s.toString(), invoiceType.getSelectedItem().toString(),Integer.valueOf(warrantyPeriod.getSelectedItem().toString())
+         //           ,imageFile, null);
+            invoiceDBHelper.updateInvoice(dbID, title.getText().toString(), invoiceType.getSelectedItem().toString()
+                    ,warrantyPeriod.getSelectedItem().toString(),imageFile, date.getText().toString());
+        }
+        Toast.makeText(this,"Invoice Saved", Toast.LENGTH_LONG).show();
     }
 
     private void selectSpinnerItemByValue(Spinner spnr, String value) {
@@ -248,6 +257,19 @@ public class AddInvoiceActivity extends AppCompatActivity implements DatePickerD
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_save:
+                saveInvoice();
+                startActivity(new Intent(this, AddInvoiceActivity.class));
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
     @Override
     protected void onDestroy() {
         invoiceDBHelper.close();
