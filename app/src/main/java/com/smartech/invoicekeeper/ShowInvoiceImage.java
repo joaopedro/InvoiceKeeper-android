@@ -29,8 +29,6 @@ public class ShowInvoiceImage extends AppCompatActivity {
     private ImageView bigImageView;
     private static final int SELECT_PICTURE = 2;
     private String imageFile;
-    private boolean imageChanged;
-    private long dbid;
 
 
     @Override
@@ -39,7 +37,6 @@ public class ShowInvoiceImage extends AppCompatActivity {
         setContentView(R.layout.activity_show_invoice_image);
         Intent intent = getIntent();
         imagePath = intent.getStringExtra(AddInvoiceActivity.IMAGE_FILE_EXTRA);
-        dbid = intent.getLongExtra(DBID, 0);
 
         bigImageView = (ImageView) findViewById(R.id.bigInvoiceImageView);
 
@@ -56,27 +53,19 @@ public class ShowInvoiceImage extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(imageChanged && dbid > 0){
-            Intent intent = new Intent(this, AddInvoiceActivity.class);
-            intent.putExtra(DBID, dbid);
-            intent.putExtra(IMAGE_FILE_EXTRA, imageFile);
-            startActivity(intent);
-        }
-        else
-            super.onBackPressed();
+        Intent intent = new Intent();
+        intent.putExtra(IMAGE_FILE_EXTRA, imageFile);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                if(imageChanged && dbid > 0){
-                    Intent intent = new Intent(this, AddInvoiceActivity.class);
-                    intent.putExtra(DBID, dbid);
-                    intent.putExtra(IMAGE_FILE_EXTRA, imageFile);
-                    startActivity(intent);
-                }
-                else
-                    super.onBackPressed();
+                Intent intent = new Intent();
+                intent.putExtra(IMAGE_FILE_EXTRA, imageFile);
+                setResult(RESULT_OK, intent);
+                finish();
 
                 return true;
 
@@ -109,7 +98,6 @@ public class ShowInvoiceImage extends AppCompatActivity {
             if(data.hasExtra("data")){
                 invoiceImage = (Bitmap) data.getExtras().get("data");
                 bigImageView.setImageBitmap(invoiceImage);
-                imageChanged =true;
             }else{
                 Uri selectedimg = data.getData();
                 try {
@@ -118,7 +106,6 @@ public class ShowInvoiceImage extends AppCompatActivity {
                 } catch (IOException e) {
                     throw new RuntimeException("Error Getting Image.");
                 }
-                imageChanged =true;
             }
 
             if(invoiceImage != null)

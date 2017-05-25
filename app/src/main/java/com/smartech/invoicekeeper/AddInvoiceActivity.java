@@ -59,6 +59,7 @@ public class AddInvoiceActivity extends AppCompatActivity implements DatePickerD
     private boolean imageTaken = false;
 
     private static final int SELECT_PICTURE = 1;
+    private static final int SHOW_PICTURE = 2;
     private String imageFile;
     private InvoiceDBHelper invoiceDBHelper;
 
@@ -73,8 +74,6 @@ public class AddInvoiceActivity extends AppCompatActivity implements DatePickerD
         invoiceDBHelper = new InvoiceDBHelper(getApplicationContext());
         Intent intent = getIntent();
         dbID = intent.getLongExtra(DBID, 0);
-        imageFile = intent.getStringExtra(ShowInvoiceImage.IMAGE_FILE_EXTRA);
-
 
         title = (TextView) findViewById(R.id.invoiceTitle);
 
@@ -127,8 +126,7 @@ public class AddInvoiceActivity extends AppCompatActivity implements DatePickerD
                 }else if (!TextUtils.isEmpty(imageFile)){
                     Intent intent = new Intent(AddInvoiceActivity.this, ShowInvoiceImage.class);
                     intent.putExtra(IMAGE_FILE_EXTRA, imageFile);
-                    intent.putExtra(DBID, dbID);
-                    startActivity(intent);
+                    startActivityForResult(intent, SHOW_PICTURE);
                 }
             }
         });
@@ -140,20 +138,10 @@ public class AddInvoiceActivity extends AppCompatActivity implements DatePickerD
             date.setText(invoiceDAO.getDate());
             selectSpinnerItemByValue(warrantyPeriod, invoiceDAO.getWarrantyPeriod());
 
-            if( imageFile==null && !TextUtils.isEmpty(invoiceDAO.getImageFile()))
-                imageFile = invoiceDAO.getImageFile();
+            imageFile = invoiceDAO.getImageFile();
 
 
-            if( imageFile != null){
-                imageTaken=true;
-                try {
-                    Bitmap bitmap = null;
-                    bitmap = BitmapFactory.decodeStream(openFileInput(imageFile));
-                    invoiceImageView.setImageBitmap(bitmap);
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException();
-                }
-            }
+            renderImage();
 
         }
 
@@ -186,6 +174,19 @@ public class AddInvoiceActivity extends AppCompatActivity implements DatePickerD
 
     }
 
+    private void renderImage() {
+        if( imageFile != null){
+            imageTaken=true;
+            try {
+                Bitmap bitmap = null;
+                bitmap = BitmapFactory.decodeStream(openFileInput(imageFile));
+                invoiceImageView.setImageBitmap(bitmap);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException();
+            }
+        }
+    }
+
     private void saveInvoice() {
         if(dbID==0){
             dbID = invoiceDBHelper.insertInvoice(title.getText().toString(),invoiceType.getSelectedItem().toString()
@@ -216,6 +217,13 @@ public class AddInvoiceActivity extends AppCompatActivity implements DatePickerD
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SHOW_PICTURE) {
+            if(resultCode == RESULT_OK) {
+                imageFile= data.getStringExtra(ShowInvoiceImage.IMAGE_FILE_EXTRA);
+                renderImage();
+            }
+        }
         if (requestCode == SELECT_PICTURE && resultCode == Activity.RESULT_OK) {
             Bitmap invoiceImage = null;
             if(data.hasExtra("data")){
