@@ -116,8 +116,9 @@ public class InvoiceDBHelper extends SQLiteOpenHelper {
                 InvoiceContract.Invoice.COLUMN_NAME_TYPE,
                 InvoiceContract.Invoice.COLUMN_NAME_IMAGE_FILE
         };
+
         Cursor cursor = db.query(InvoiceContract.Invoice.TABLE_NAME, columns,
-                null, null, null, null, null);
+                null, null, null, null, InvoiceContract.Invoice._ID + " DESC");
 
         return cursor;
     }

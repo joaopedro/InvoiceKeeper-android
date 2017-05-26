@@ -28,7 +28,6 @@ public class ShowInvoiceImage extends AppCompatActivity {
     private String imagePath;
     private ImageView bigImageView;
     private static final int SELECT_PICTURE = 2;
-    private String imageFile;
 
 
     @Override
@@ -54,7 +53,7 @@ public class ShowInvoiceImage extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         Intent intent = new Intent();
-        intent.putExtra(IMAGE_FILE_EXTRA, imageFile);
+        intent.putExtra(IMAGE_FILE_EXTRA, imagePath);
         setResult(RESULT_OK, intent);
         finish();
     }
@@ -63,7 +62,7 @@ public class ShowInvoiceImage extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 Intent intent = new Intent();
-                intent.putExtra(IMAGE_FILE_EXTRA, imageFile);
+                intent.putExtra(IMAGE_FILE_EXTRA, imagePath);
                 setResult(RESULT_OK, intent);
                 finish();
 
@@ -127,7 +126,7 @@ public class ShowInvoiceImage extends AppCompatActivity {
                     }
                 }
 
-                imageFile = uuidFilePath;
+                imagePath = uuidFilePath;
             }
         }
     }
