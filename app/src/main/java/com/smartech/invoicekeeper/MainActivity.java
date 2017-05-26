@@ -16,9 +16,9 @@ import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
+import com.smartech.invoicekeeper.adapter.CustomCursorAdapter;
 import com.smartech.invoicekeeper.db.InvoiceContract;
 import com.smartech.invoicekeeper.db.InvoiceDBHelper;
 
@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public static final String CONTENT_INVOICE_LIST = "content://invoice_list";
     private ListView listView;
     private InvoiceDBHelper invoiceDBHelper;
-    private SimpleCursorAdapter dataAdapter;
+    private CustomCursorAdapter dataAdapter;
 
     public static final String DBID = "dbid";
     public static final int INITIALDB_ID = 0;
@@ -135,11 +135,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onLoadFinished(android.content.Loader<Cursor> loader, Cursor data) {
         if(dataAdapter==null){
-            dataAdapter = new SimpleCursorAdapter(
+            dataAdapter = new CustomCursorAdapter(
                     this, R.layout.invoice_list_element,
                     data,
-                    new String[] {InvoiceContract.Invoice.COLUMN_NAME_TITLE},
-                    new int[] {R.id.invoiceTitleListElement},
+                    new String[] {InvoiceContract.Invoice.COLUMN_NAME_TITLE,
+                            InvoiceContract.Invoice.COLUMN_NAME_IMAGE_FILE},
+                    new int[] {R.id.invoiceTitleListElement,
+                    R.id.listImage},
                     0);
             listView.setAdapter(dataAdapter);
         }else{
