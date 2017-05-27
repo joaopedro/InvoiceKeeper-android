@@ -10,6 +10,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,6 +46,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.invoice_list_menu, menu);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -62,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         });
 
         listView = (ListView) findViewById(R.id.invoicesList);
+        registerForContextMenu(listView);
 
         getLoaderManager().initLoader(0, null, this);
 
@@ -87,6 +97,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.delete_invoice) {
+            if(invoiceDBHelper.deleteById(info.id)){
+                getLoaderManager().restartLoader(0,null, this);
+
+                return true;
+            }
+        }
+        return super.onContextItemSelected(item);
     }
 
     @Override

@@ -123,4 +123,10 @@ public class InvoiceDBHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
+    public boolean deleteById(long id) {
+        SQLiteDatabase writableDatabase = getWritableDatabase();
+
+        return writableDatabase.delete(InvoiceContract.Invoice.TABLE_NAME,
+                InvoiceContract.Invoice._ID +  "=" + id, null) > 0;
+    }
 }

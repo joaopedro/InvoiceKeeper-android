@@ -18,4 +18,5 @@
 
     <string name="title_activity_show_invoice_image">ShowInvoiceImage</string>
     <string name="action_edit">Edit</string>
+    <string name="delete_invoice">Delete</string>
 </resources>
